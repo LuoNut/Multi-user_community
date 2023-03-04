@@ -1,0 +1,90 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 3931247 */
+  src: url('//at.alicdn.com/t/c/font_3931247_kcoqj110a9.woff2?t=1677930230966') format('woff2'),
+       url('//at.alicdn.com/t/c/font_3931247_kcoqj110a9.woff?t=1677930230966') format('woff'),
+       url('//at.alicdn.com/t/c/font_3931247_kcoqj110a9.ttf?t=1677930230966') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-fengexian:before {
+  content: "\ec7f";
+}
+
+.icon-charutupian:before {
+  content: "\ec80";
+}
+
+.icon-zitijiacu:before {
+  content: "\ec83";
+}
+
+.icon-zitibiaoti:before {
+  content: "\ec84";
+}
+
+.icon-zitixieti:before {
+  content: "\ec85";
+}
+
+.icon-duigoux:before {
+  content: "\ec9e";
+}
+
+.icon-praise:before {
+  content: "\e71b";
+}
+
+.icon-browse:before {
+  content: "\e6e4";
+}
+
+.icon-message:before {
+  content: "\e70c";
+}
+
+.icon-more:before {
+  content: "\e710";
+}
+
+.icon-editor:before {
+  content: "\e6f5";
+}
+
+.icon-add:before {
+  content: "\e6df";
+}
+
+.icon-collection_fill:before {
+  content: "\e6ea";
+}
+
+.icon-interactive_fill:before {
+  content: "\e704";
+}
+
+.icon-interactive:before {
+  content: "\e705";
+}
+
+.icon-like_fill:before {
+  content: "\e707";
+}
+
+.icon-like:before {
+  content: "\e708";
+}
+
+.icon-praise_fill:before {
+  content: "\e71a";
+}
+
+.icon-search:before {
+  content: "\e741";
+}
