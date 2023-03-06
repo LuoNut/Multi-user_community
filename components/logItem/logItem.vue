@@ -3,13 +3,13 @@
 		<view class="head">
 			<view class="userInfo">
 				<view class="avatar">
-					<image src="../../static/images/user.jpg" mode="aspectFill"></image>
+					<image :src="item.user_id[0].avatar_file ? item.user_id[0].avatar_file : '/static/images/user-default.jpg'" mode="aspectFill"></image>
 				</view>
 				<view class="name">
-					王五
+					{{item.user_id[0].nickname ? item.user_id[0].nickname : item.user_id[0].username}}
 				</view>
 				<view class="time">
-					<uni-dateformat :date="Date.now()" :threshold="[60000,60000 * 60 * 24 * 30]" format="MM-dd hh-mm">
+					<uni-dateformat :date="item.publish_date" :threshold="[60000,60000 * 60 * 24 * 30]" format="MM-dd hh-mm">
 					</uni-dateformat>
 				</view>
 			</view>
@@ -20,17 +20,17 @@
 		</view>
 
 		<view class="body">
-			<view class="title">
-				默认标题
+			<view class="title" @click="toDetail">
+				{{item.title}}
 			</view>
-			<view class="text">
+			<view class="text" @click="toDetail">
 				<view class="t">
-					内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容
+					{{item.description}}
 				</view>
 			</view>
 			<view class="picList">
-				<view class="pic" :class="picList.length == 1 ? 'only' : ''" v-for="item in picList" >
-					<image src="../../static/images/user.jpg" mode="aspectFill">
+				<view class="pic" :class="item.picurls.length == 1 ? 'only' : ''" v-for="(pic, index) in item.picurls" >
+					<image @click="clickImage(index)" :src="pic" mode="aspectFill">
 					</image>
 				</view>
 			</view>
@@ -39,15 +39,15 @@
 		<view class="info">
 			<view class="box">
 				<text class="iconfont icon-browse"></text>
-				<text>20</text>
+				<text>{{item.view_count}}</text>
 			</view>
-			<view class="box">
+			<view class="box" @click="toDetail">
 				<text class="iconfont icon-message"></text>
-				<text>20</text>
+				<text>{{item.comment_count ? item.comment_coun : '评论'}}</text>
 			</view>
 			<view class="box">
 				<text class="iconfont icon-praise"></text>
-				<text>20</text>
+				<text>{{item.like_count ? item.like_count : '点赞'}}</text>
 			</view>
 		</view>
 
@@ -58,10 +58,32 @@
 <script>
 	export default {
 		name: "logItem",
+		props: {
+			item: {
+				type: Object,
+				default() {
+					return {}
+				}
+			}
+		},
 		data() {
 			return {
-				picList: [1, 2, 3]
 			};
+		},
+		methods: {
+			//跳转至detail页面
+			toDetail() {
+				uni.navigateTo({
+					url:'/pages/detail/detail?id=' + this.item._id
+				})
+			},
+			//点击预览图片
+			clickImage(index) {
+				uni.previewImage({
+					urls: this.item.picurls,
+					current: index
+				})
+			}
 		}
 	}
 </script>

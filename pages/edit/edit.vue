@@ -26,6 +26,7 @@
 
 <script>
 	import {getImgSrc, getProvince} from "@/utils/tools.js"
+	const db = uniCloud.database()
 	export default {
 		data() {
 			return {
@@ -37,27 +38,49 @@
 					title: "",
 					content: "",
 					description: "",
-					picurls: []
+					picurls: [],
+					province: ""
 				}
 			};
 		},
 		onLoad() {
 			getProvince().then(res => {
-				console.log(res );
+				this.artobj.province = res
 			})
 		},
 		methods: {
 			//点击提交按钮
 			onSubmit() {
+				uni.showLoading({
+					title: "发布中..."
+				})
 				this.editorCtx.getContents({
 					success:(e) => {
-						console.log(e);
 						this.artobj.content = e.html
 						this.artobj.description = e.text.slice(0,80)
 						this.artobj.picurls = getImgSrc(e.html)
+						this.setData()
 					}
 				})
-				console.log(this.artobj);
+			},
+			
+			//上传到云数据库的功能函数
+			setData() {
+				db.collection('quanzi_article').add({
+					...this.artobj
+				}).then(res => {
+					console.log(res);
+					uni.hideLoading()
+					uni.showToast({
+						title:"发布成功"
+					})
+					setTimeout(() => {
+						uni.reLaunch({
+							url:"/pages/index/index"
+						})
+					}, 800);
+					
+				})
 			},
 			
 			//富文本获取焦点

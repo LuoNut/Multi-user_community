@@ -29,13 +29,13 @@
 		
 		<!-- 内容部分 -->
 		<view class="content">
-			<view class="Item" v-for="item in logData">
-				<logItem></logItem>
+			<view class="Item" v-for="item in articleData">
+				<logItem :item="item"></logItem>
 			</view>
 		</view>
 		
 		<!-- 编辑按钮 -->
-		<view class="edit">
+		<view class="edit" @click="toEdit">
 			<view class="iconfont icon-editor">		
 			</view>
 		</view>
@@ -43,27 +43,53 @@
 </template>
 
 <script>
+	const db = uniCloud.database()
 	export default {
 		data() {
 			return {
 				navList: [
 					{
-						name: "最新"
+						name: "最新",
+						type: "publish_date"
 					},
 					{
-						name: "热门"
+						name: "热门",
+						type: "view_count"
 					}
 				],
-				loadingState: false,
-				logData: 3
+				loadingState: true,
+				navActive: 0,
+				articleData: [],
+				
 			}
 		},
 		onLoad() {
-
+			this.getArticleData()
 		},
 		methods: {
-			navClick() {
-				console.log("111");
+			//获取文章数据
+			getArticleData() {
+				let artTemp = db.collection("quanzi_article").field("user_id,like_count,view_count,comment_count,title,publish_date,description,picurls,province").getTemp()
+				let userTemp = db.collection("uni-id-users").field("_id,username,nickname,avatar_file").getTemp()
+				
+				db.collection(artTemp,userTemp).orderBy(this.navList[this.navActive].type,"desc").get().then(res => {
+					console.log(res);	
+					this.articleData = res.result.data
+					this.loadingState = false
+				})
+			},
+			//点击导航标签
+			navClick(e) {
+				this.loadingState = true
+				this.articleData = []
+				this.navActive = e.index
+				this.getArticleData()
+			},
+			//跳转至edit页面
+			toEdit() {
+				uni.navigateTo({
+					url:"/pages/edit/edit"
+				})
 			}
 		}
 	}
