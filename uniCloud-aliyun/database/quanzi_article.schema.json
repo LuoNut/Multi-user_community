@@ -72,7 +72,7 @@
 			"description": "阅读数量",
 			"defaultValue": 55,
 			"permission": {
-				"write": false
+				"write": true
 			}
 		},
 		"like_count": {
@@ -80,7 +80,7 @@
 			"description": "喜欢数、点赞数",
 			"defaultValue": 0,
 			"permission": {
-				"write": false
+				"write": true
 			}
 		},
 		"comment_status": {
@@ -103,7 +103,7 @@
 			"description": "评论数量",
 			"defaultValue": 0,
 			"permission": {
-				"write": false
+				"write": true
 			}
 		},
 		"last_comment_user_id": {

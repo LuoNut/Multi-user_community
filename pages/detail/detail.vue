@@ -1,46 +1,48 @@
 <template>
 	<view class="detail">
 		<view class="container">
-			<unicloud-db 
-			v-slot:default="{data, loading, error, options}" 
-			collection="quanzi_article" 
-			:getone="true" 
-			:where="`_id=='${artId}'`"
-			>
-			
 			  <view>
-			    <view class="title">
-			    	{{data.title}}
-			    </view>
-			    <view class="userInfo">
-			    	<view class="avatar">
-			    		<image src="../../static/images/user.jpg" mode="aspectFill"></image>
-			    	</view>
-			    	<view class="text">
-			    		<view class="name">
-			    			王五
-			    		</view>
-			    		<view class="small">
-			    			6天前，发布于北京
-			    		</view>
-			    	</view>
-			    </view>
-			    <view class="content">
-			    	<u-parse :content="data.content" :tagStyle="tagStyle"></u-parse>
-			    </view>
-			  </view>
-			</unicloud-db>
+				  <view v-if="loadingState" >
+				  		<u-skeleton
+				  		    rows="5"
+				  		    title
+				  			loading
+				  		></u-skeleton>
+				  </view>
+				  <view v-else>
+						<view class="title">
+						  	{{artData.title}}
+						  </view>
+						  <view class="userInfo">
+						  	<view class="avatar">
+						  		<image :src="artData.user_id[0].avatar_file ? item.user_id[0].avatar_file : '/static/images/user-default.jpg'"></image>
+						  	</view>
+						  	<view class="text">
+						  		<view class="name">
+						  			{{artData.user_id[0].nickname ? artData.user_id[0].nickname : artData.user_id[0].username}}
+						  		</view>
+						  		<view class="small">
+						  			<uni-dateformat :date="artData.puartDatablish_date" format="yyyy-MM-dd hh:mm" >
+						  			</uni-dateformat>，发布于{{artData.province}}
+						  		</view>
+						  	</view>
+						  </view>
+						  <view class="content">
+						  	<u-parse :content="artData.content" :tagStyle="tagStyle"></u-parse>
+						  </view>
+						</view>
+				  </view>
 			
 			<view class="like">
-				<view class="btn">
+				<view class="btn" @click="likeUpdata" :class="artData.isLike ? 'active' : ''">
 					<text class="iconfont icon-praise"></text>
-					<text>88</text>
+					<text v-show="artData.like_count">{{artData.like_count}}</text>
 				</view>
 				<view class="users">
 					<image src="../../static/images/user.jpg" mode="aspectFill"></image>
 				</view>
 				<view class="text">
-					<text class="num">998</text>
+					<text class="num">{{artData.view_count}}</text>
 					人看过
 				</view>
 			</view>
@@ -49,6 +51,10 @@
 </template>
 
 <script>
+	const db = uniCloud.database()
+	const utilsObj = uniCloud.importObject('utilsObj',{
+		customUI: true // 取消自动展示的交互提示界面
+	})
 	export default {
 		data() {
 			return {
@@ -56,11 +62,101 @@
 				tagStyle: {
 					p: 'line-height:1.7em; font-size:32rpx; padding-bottom:10rpx',
 					img: 'margin:10rpx 0'
-				}
+				},
+				loadingState: true,
+				artData: {}
 			};
 		},
 		onLoad(e) {
+			if(!e.id) {
+				this.errFun()
+				return
+			}
 			this.artId = e.id
+			this.getData()
+			this.readUpdata()
+		},
+		methods: {
+			//记录阅读量
+			readUpdata() {
+				utilsObj.operation('quanzi_article','view_count',this.artId,2)
+			},
+			//记录点赞量
+			 likeUpdata() {
+				 //防抖
+				 let time = Date.now()
+				 if(time - this.likeTime < 2000) {
+					 uni.showToast({
+					 	title:"点击太频繁了...",
+						icon:'none'
+					 })
+					 return
+				 }
+				 
+				 
+				 this.artData.isLike ? this.artData.like_count-- : this.artData.like_count++
+				 this.artData.isLike = !this.artData.isLike
+				 this.likeTime = time
+				 
+				this.likeFun()
+			},
+			//点赞操作数据库的方法
+			async likeFun() {
+				//判断用户是否已经点过赞
+				let count = await db.collection("quanzi_like")
+				.where(`article_id=="${this.artId}" && user_id==$cloudEnv_uid`).count()
+				console.log(count);
+				if(count.result.total) {
+					db.collection("quanzi_like").where(`article_id=="${this.artId}" && user_id==$cloudEnv_uid`).remove()
+					utilsObj.operation('quanzi_article','like_count',this.artId,-1)
+				}else {
+					db.collection('quanzi_like').add({
+						article_id: this.artId
+					}).then((res) => {
+						console.log(res);
+						utilsObj.operation('quanzi_article','like_count',this.artId,1)
+					})
+				}
+			},
+			//错误处理
+			errFun(e) {
+				uni.showToast({
+					title:"参数错误",
+					icon:'none',
+				})
+				setTimeout(function() {
+					uni.reLaunch({
+						url: '/pages/index/index'
+					})
+				}, 800);
+			},
+			//获取文章数据
+			getData() {
+				let artTemp =  db.collection("quanzi_article").where(`_id=="${this.artId}"`).getTemp()
+				let userTemp = db.collection("uni-id-users").field("_id,username,nickname,avatar_file").getTemp()
+				
+				let likeTemp = db.collection(("quanzi_like")).where(`article_id=="${this.artId}" && user_id==$cloudEnv_uid`).getTemp()
+					
+				db.collection(artTemp,userTemp,likeTemp).get({
+					getOne:true
+				}).then((res) => {
+					if(!res.result.data) {
+						this.errFun()
+						return
+					}
+					let isLike = res.result.data._id.quanzi_like.length ? true : false
+					res.result.data.isLike = isLike
+					this.artData = res.result.data
+					this.loadingState = false
+					uni.setNavigationBarTitle({
+						title:res.result.data.title	
+					})
+					
+					
+				}).catch(err => {
+					this.errFun()
+				})
+			}
 		}
 	}
 </script>

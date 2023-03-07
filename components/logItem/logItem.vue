@@ -3,13 +3,16 @@
 		<view class="head">
 			<view class="userInfo">
 				<view class="avatar">
-					<image :src="item.user_id[0].avatar_file ? item.user_id[0].avatar_file : '/static/images/user-default.jpg'" mode="aspectFill"></image>
+					<image 
+						:src="item.user_id[0].avatar_file ? item.user_id[0].avatar_file : '/static/images/user-default.jpg'" 
+						mode="aspectFill">
+					</image>
 				</view>
 				<view class="name">
 					{{item.user_id[0].nickname ? item.user_id[0].nickname : item.user_id[0].username}}
 				</view>
 				<view class="time">
-					<uni-dateformat :date="item.publish_date" :threshold="[60000,60000 * 60 * 24 * 30]" format="MM-dd hh-mm">
+					<uni-dateformat :date="item.publish_date" :threshold="[60000,60000 * 60 * 24 * 30]" format="MM-dd hh-mm" >
 					</uni-dateformat>
 				</view>
 			</view>
