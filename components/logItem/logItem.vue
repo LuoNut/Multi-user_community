@@ -13,7 +13,7 @@
 					</uni-dateformat>
 				</view>
 			</view>
-			<view class="more">
+			<view class="more" @click="onMore">
 				<view class="iconfont icon-more">
 				</view>
 			</view>
@@ -50,8 +50,14 @@
 				<text>{{item.like_count ? item.like_count : '点赞'}}</text>
 			</view>
 		</view>
-
-
+		
+		
+		<u-action-sheet cancelText="取消" :actions="list" :show="showSheet"
+			closeOnClickOverlay
+			closeOnClickAction
+			@select="selectSheet"
+			@close="closeSheet"
+		></u-action-sheet>
 	</view>
 </template>
 
@@ -69,6 +75,18 @@
 		},
 		data() {
 			return {
+				showSheet: false,
+				list:[
+					{
+						name:"修改",
+						type:"dedit"
+					},
+					{
+						name:"删除",
+						type:"del",
+						color:"#f56c6c"
+					}
+				]
 			};
 		},
 		onLoad() {
@@ -77,6 +95,20 @@
 		methods: {
 			giveName, 
 			giveAvatar,
+			
+			//点击sheet的取消选项
+			closeSheet() {
+				this.showSheet = false
+			},
+			//点击sheet的任意选项
+			selectSheet(e) {
+				this.showSheet = false
+				console.log(e);
+			},
+			//点击更多按钮
+			onMore() {
+				this.showSheet = true
+			},
 			//跳转至detail页面
 			toDetail() {
 				uni.navigateTo({

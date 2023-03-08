@@ -18,7 +18,11 @@
       </view>
     </uni-forms>
 	
-	 <uni-fab ref="fab" horizontal="right" vertical="bottom" :pop-menu="false" @fabClick="fabClick" />
+	<view v-if="uniIDHasRole('webmaster') || uniIDHasRole('admin')">
+		<uni-fab ref="fab" horizontal="right" vertical="bottom" :pop-menu="false" @fabClick="fabClick" />
+	</view>
+	
+
   </view>
 </template>
 
