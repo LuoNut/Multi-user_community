@@ -3,13 +3,10 @@
 		<view class="head">
 			<view class="userInfo">
 				<view class="avatar">
-					<image 
-						:src="item.user_id[0].avatar_file ? item.user_id[0].avatar_file : '/static/images/user-default.jpg'" 
-						mode="aspectFill">
-					</image>
+					<image :src="giveAvatar(item)"></image>
 				</view>
 				<view class="name">
-					{{item.user_id[0].nickname ? item.user_id[0].nickname : item.user_id[0].username}}
+					{{giveName(item)}}
 				</view>
 				<view class="time">
 					<uni-dateformat :date="item.publish_date" :threshold="[60000,60000 * 60 * 24 * 30]" format="MM-dd hh-mm" >
@@ -26,12 +23,12 @@
 			<view class="title" @click="toDetail">
 				{{item.title}}
 			</view>
-			<view class="text" @click="toDetail">
+			<view class="text" @click="toDetail" v-if="item.description">
 				<view class="t">
 					{{item.description}}
 				</view>
 			</view>
-			<view class="picList">
+			<view class="picList" v-if="item.picurls.length">
 				<view class="pic" :class="item.picurls.length == 1 ? 'only' : ''" v-for="(pic, index) in item.picurls" >
 					<image @click="clickImage(index)" :src="pic" mode="aspectFill">
 					</image>
@@ -59,6 +56,7 @@
 </template>
 
 <script>
+	import {giveName, giveAvatar} from '../../utils/tools.js'
 	export default {
 		name: "logItem",
 		props: {
@@ -73,7 +71,12 @@
 			return {
 			};
 		},
+		onLoad() {
+			console.log(this.item);
+		},
 		methods: {
+			giveName, 
+			giveAvatar,
 			//跳转至detail页面
 			toDetail() {
 				uni.navigateTo({

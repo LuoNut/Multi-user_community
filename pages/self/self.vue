@@ -15,7 +15,7 @@
 							{{userInfo.nickname||userInfo.username||userInfo.moblie}}
 						</view>
 						<view class="year">
-							<uni-dateformat :date="new Date() - 360000" :threshold="[3600,99*365*24*60*60*1000]"></uni-dateformat>
+							<uni-dateformat :date="userInfo.register_date" :threshold="[3600,99*365*24*60*60*1000]"></uni-dateformat>
 							注册
 						</view>
 					</view>
@@ -53,34 +53,34 @@
 			
 			<view class="list">
 				<view class="group">
-					<view class="item">
+					<view class="item" @click="toMyArticle">
 							<view class="left"><text class="iconfont icon-tianxie"></text><text class="text">我的长文</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
-					<view class="item">
-							<view class="left"><text class="iconfont icon-dianzan"></text><text class="text">我的长文</text></view>
+					<view class="item" @click="toMyLike">
+							<view class="left"><text class="iconfont icon-dianzan"></text><text class="text">我的点赞</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
 					<view class="item">
-							<view class="left"><text class="iconfont icon-brush"></text><text class="text">我的长文</text></view>
+							<view class="left"><text class="iconfont icon-brush"></text><text class="text">评论过的</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
 				</view>
 				
 				<view class="group">
 					<view class="item">
-							<view class="left"><text class="iconfont icon-shiyongwendang"></text><text class="text">我的长文</text></view>
+							<view class="left"><text class="iconfont icon-shiyongwendang"></text><text class="text">关于</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
 					<view class="item">
-							<view class="left"><text class="iconfont icon-yijianfankui"></text><text class="text">我的长文</text></view>
+							<view class="left"><text class="iconfont icon-yijianfankui"></text><text class="text">意见反馈</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
 				</view>
 				
 				<view class="group">
 					<view class="item" @click="logout">
-							<view class="left"><text class="iconfont icon-tuichudenglu"></text><text class="text">我的长文</text></view>
+							<view class="left"><text class="iconfont icon-tuichudenglu"></text><text class="text">退出登录</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
 				</view>
@@ -108,19 +108,28 @@
 			}
 		},
 		methods: {
+			//跳转到我的长文页面
+			toMyArticle() {
+				if(this.isLoginPage()) return 
+				uni.navigateTo({
+					url: '/pages/quanzi_article/list'
+				})
+			},
+			//跳转到我的点赞页面
+			toMyLike() {
+				if(this.isLoginPage()) return 
+				uni.navigateTo({
+					url: '/pages/quanzi_like/list'
+				})
+			},
+			//跳转到个人用户信息界面
 			toUserInfo() {
 				uni.navigateTo({
 					url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo'
 				}) 
 			},
 			logout() {
-				if(!this.hasLogin) {
-					uni.showToast({
-						title:"还未登录",
-						icon:"none"
-					})
-					return 
-				}
+				if(this.isLoginPage()) return 
 				uni.showModal({
 					title: "是否确认退出登录",
 					success: (e) => {
@@ -129,6 +138,17 @@
 						}
 					}
 				})
+			},
+			//判断是否未登录 true未登录 false已登录
+			isLoginPage() {
+				if(!this.hasLogin) {
+					uni.showToast({
+						title: "未登录",
+						icon:"none"
+					})
+					return true
+				}
+				return false
 			}
 		}
 	}

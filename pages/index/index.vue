@@ -76,6 +76,7 @@
 					console.log(res);	
 					this.articleData = res.result.data
 					this.loadingState = false
+					console.log(this.articleData);
 				})
 			},
 			//点击导航标签

@@ -64,3 +64,13 @@ function getip() {
 		})
 	})
 }
+
+//获取昵称
+export function giveName(item) {
+	return item.user_id[0].nickname || item.user_id[0].username || item.user_id[0].mobile || "请设置昵称"
+}
+
+//获取头像
+export function giveAvatar(item) {
+	return item.user_id[0]?.avatar_file?.url ?? '/static/images/user-default.jpg'
+}

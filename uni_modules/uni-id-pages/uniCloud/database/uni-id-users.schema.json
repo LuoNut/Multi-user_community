@@ -51,7 +51,7 @@
 			"title": "备注",
 			"trim": "both",
 			"permission": {
-				"read": "'READ_UNI_ID_USERS' in auth.permission",
+				"read": true,
 				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},
@@ -378,7 +378,7 @@
 			"bsonType": "array",
 			"description": "用户token",
 			"permission": {
-				"read": false,
+				"read": true,
 				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},
@@ -388,7 +388,7 @@
 			"title": "用户名",
 			"trim": "both",
 			"permission": {
-				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"read": true,
 				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},

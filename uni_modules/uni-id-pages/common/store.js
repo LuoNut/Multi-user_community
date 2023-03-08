@@ -7,6 +7,11 @@ const usersTable = db.collection('uni-id-users')
 
 let hostUserInfo = uni.getStorageSync('uni-id-pages-userInfo')||{}
 // console.log( hostUserInfo);
+
+//判断token是否过期
+let tokenTiem = uniCloud.getCurrentUserInfo().tokenExpired - Date.now() > 0
+if(!tokenTiem) hostUserInfo = {}
+
 const data = {
 	userInfo: hostUserInfo,
 	hasLogin: Object.keys(hostUserInfo).length != 0
@@ -42,7 +47,7 @@ export const mutations = {
 			})
 			try {
 				let res = await usersTable.where("'_id' == $cloudEnv_uid")
-					.field('mobile,nickname,username,email,avatar_file')
+					.field('mobile,nickname,username,email,avatar_file,register_date')
 					.get()
 
 				const realNameRes = await uniIdCo.getRealNameInfo()
