@@ -121,32 +121,28 @@
 			"style": {
 				"navigationBarTitleText": "列表"
 			}
+		}, {
+			"path": "uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback",
+			"style": {
+				"navigationBarTitleText": "新增"
+			}
+		}, {
+			"path": "uni_modules/uni-feedback/pages/opendb-feedback/edit",
+			"style": {
+				"navigationBarTitleText": "编辑"
+			}
+		}, {
+			"path": "uni_modules/uni-feedback/pages/opendb-feedback/list",
+			"style": {
+				"navigationBarTitleText": "列表"
+			}
+		}, {
+			"path": "uni_modules/uni-feedback/pages/opendb-feedback/detail",
+			"style": {
+				"navigationBarTitleText": "详情"
+			}
 		}
-	,{
-    "path": "uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback",
-    "style": {
-        "navigationBarTitleText": "新增"
-    }
-}
-,{
-    "path": "uni_modules/uni-feedback/pages/opendb-feedback/edit",
-    "style": {
-        "navigationBarTitleText": "编辑"
-    }
-}
-,{
-    "path": "uni_modules/uni-feedback/pages/opendb-feedback/list",
-    "style": {
-        "navigationBarTitleText": "列表"
-    }
-}
-,{
-    "path": "uni_modules/uni-feedback/pages/opendb-feedback/detail",
-    "style": {
-        "navigationBarTitleText": "详情"
-    }
-}
-],
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "交流圈子",

@@ -32401,6 +32401,544 @@ module.exports = JSON.parse("{\"uni-load-more.contentdown\":\"上拉显示更多
 
 module.exports = JSON.parse("{\"uni-load-more.contentdown\":\"上拉顯示更多\",\"uni-load-more.contentrefresh\":\"正在加載...\",\"uni-load-more.contentnomore\":\"沒有更多數據了\"}");
 
+/***/ }),
+/* 651 */,
+/* 652 */,
+/* 653 */
+/*!******************************************************************************************************!*\
+  !*** D:/桌面/uniapp/3/unicloud_community/uni_modules/uni-feedback/js_sdk/validator/opendb-feedback.js ***!
+  \******************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.enumConverter = void 0;
+exports.filterToWhere = filterToWhere;
+exports.validator = void 0;
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ 5));
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+// 表单校验规则由 schema2code 生成，不建议直接修改校验规则，而建议通过 schema2code 生成, 详情: https://uniapp.dcloud.net.cn/uniCloud/schema
+
+var validator = {
+  "content": {
+    "rules": [{
+      "required": true
+    }, {
+      "format": "string"
+    }],
+    "label": "留言内容/回复内容"
+  },
+  "imgs": {
+    "rules": [{
+      "format": "array"
+    }, {
+      "arrayType": "file"
+    }, {
+      "maxLength": 6
+    }],
+    "label": "图片列表"
+  },
+  "contact": {
+    "rules": [{
+      "format": "string"
+    }],
+    "label": "联系人"
+  },
+  "mobile": {
+    "rules": [{
+      "format": "string"
+    }, {
+      "pattern": "^\\+?[0-9-]{3,20}$"
+    }],
+    "label": "联系电话"
+  }
+};
+exports.validator = validator;
+var enumConverter = {};
+exports.enumConverter = enumConverter;
+function filterToWhere(filter, command) {
+  var where = {};
+  for (var field in filter) {
+    var _filter$field = filter[field],
+      type = _filter$field.type,
+      value = _filter$field.value;
+    switch (type) {
+      case "search":
+        if (typeof value === 'string' && value.length) {
+          where[field] = new RegExp(value);
+        }
+        break;
+      case "select":
+        if (value.length) {
+          var selectValue = [];
+          var _iterator = _createForOfIteratorHelper(value),
+            _step;
+          try {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              var s = _step.value;
+              selectValue.push(command.eq(s));
+            }
+          } catch (err) {
+            _iterator.e(err);
+          } finally {
+            _iterator.f();
+          }
+          where[field] = command.or(selectValue);
+        }
+        break;
+      case "range":
+        if (value.length) {
+          var gt = value[0];
+          var lt = value[1];
+          where[field] = command.and([command.gte(gt), command.lte(lt)]);
+        }
+        break;
+      case "date":
+        if (value.length) {
+          var _value = (0, _slicedToArray2.default)(value, 2),
+            _s = _value[0],
+            e = _value[1];
+          var startDate = new Date(_s);
+          var endDate = new Date(e);
+          where[field] = command.and([command.gte(startDate), command.lte(endDate)]);
+        }
+        break;
+      case "timestamp":
+        if (value.length) {
+          var _value2 = (0, _slicedToArray2.default)(value, 2),
+            _startDate = _value2[0],
+            _endDate = _value2[1];
+          where[field] = command.and([command.gte(_startDate), command.lte(_endDate)]);
+        }
+        break;
+    }
+  }
+  return where;
+}
+
+/***/ }),
+/* 654 */,
+/* 655 */,
+/* 656 */,
+/* 657 */,
+/* 658 */,
+/* 659 */,
+/* 660 */,
+/* 661 */,
+/* 662 */,
+/* 663 */,
+/* 664 */,
+/* 665 */,
+/* 666 */,
+/* 667 */,
+/* 668 */,
+/* 669 */,
+/* 670 */,
+/* 671 */,
+/* 672 */,
+/* 673 */,
+/* 674 */,
+/* 675 */,
+/* 676 */,
+/* 677 */,
+/* 678 */,
+/* 679 */,
+/* 680 */,
+/* 681 */,
+/* 682 */,
+/* 683 */,
+/* 684 */,
+/* 685 */,
+/* 686 */,
+/* 687 */,
+/* 688 */,
+/* 689 */,
+/* 690 */,
+/* 691 */
+/*!**************************************************************************************************************************!*\
+  !*** D:/桌面/uniapp/3/unicloud_community/uni_modules/uni-file-picker/components/uni-file-picker/choose-and-upload-file.js ***!
+  \**************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni, wx, uniCloud) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.chooseAndUploadFile = chooseAndUploadFile;
+exports.uploadCloudFiles = uploadCloudFiles;
+var ERR_MSG_OK = 'chooseAndUploadFile:ok';
+var ERR_MSG_FAIL = 'chooseAndUploadFile:fail';
+function chooseImage(opts) {
+  var count = opts.count,
+    _opts$sizeType = opts.sizeType,
+    sizeType = _opts$sizeType === void 0 ? ['original', 'compressed'] : _opts$sizeType,
+    sourceType = opts.sourceType,
+    extension = opts.extension;
+  return new Promise(function (resolve, reject) {
+    uni.chooseImage({
+      count: count,
+      sizeType: sizeType,
+      sourceType: sourceType,
+      extension: extension,
+      success: function success(res) {
+        resolve(normalizeChooseAndUploadFileRes(res, 'image'));
+      },
+      fail: function fail(res) {
+        reject({
+          errMsg: res.errMsg.replace('chooseImage:fail', ERR_MSG_FAIL)
+        });
+      }
+    });
+  });
+}
+function chooseVideo(opts) {
+  var camera = opts.camera,
+    compressed = opts.compressed,
+    maxDuration = opts.maxDuration,
+    sourceType = opts.sourceType,
+    extension = opts.extension;
+  return new Promise(function (resolve, reject) {
+    uni.chooseVideo({
+      camera: camera,
+      compressed: compressed,
+      maxDuration: maxDuration,
+      sourceType: sourceType,
+      extension: extension,
+      success: function success(res) {
+        var tempFilePath = res.tempFilePath,
+          duration = res.duration,
+          size = res.size,
+          height = res.height,
+          width = res.width;
+        resolve(normalizeChooseAndUploadFileRes({
+          errMsg: 'chooseVideo:ok',
+          tempFilePaths: [tempFilePath],
+          tempFiles: [{
+            name: res.tempFile && res.tempFile.name || '',
+            path: tempFilePath,
+            size: size,
+            type: res.tempFile && res.tempFile.type || '',
+            width: width,
+            height: height,
+            duration: duration,
+            fileType: 'video',
+            cloudPath: ''
+          }]
+        }, 'video'));
+      },
+      fail: function fail(res) {
+        reject({
+          errMsg: res.errMsg.replace('chooseVideo:fail', ERR_MSG_FAIL)
+        });
+      }
+    });
+  });
+}
+function chooseAll(opts) {
+  var count = opts.count,
+    extension = opts.extension;
+  return new Promise(function (resolve, reject) {
+    var chooseFile = uni.chooseFile;
+    if (typeof wx !== 'undefined' && typeof wx.chooseMessageFile === 'function') {
+      chooseFile = wx.chooseMessageFile;
+    }
+    if (typeof chooseFile !== 'function') {
+      return reject({
+        errMsg: ERR_MSG_FAIL + ' 请指定 type 类型，该平台仅支持选择 image 或 video。'
+      });
+    }
+    chooseFile({
+      type: 'all',
+      count: count,
+      extension: extension,
+      success: function success(res) {
+        resolve(normalizeChooseAndUploadFileRes(res));
+      },
+      fail: function fail(res) {
+        reject({
+          errMsg: res.errMsg.replace('chooseFile:fail', ERR_MSG_FAIL)
+        });
+      }
+    });
+  });
+}
+function normalizeChooseAndUploadFileRes(res, fileType) {
+  res.tempFiles.forEach(function (item, index) {
+    if (!item.name) {
+      item.name = item.path.substring(item.path.lastIndexOf('/') + 1);
+    }
+    if (fileType) {
+      item.fileType = fileType;
+    }
+    item.cloudPath = Date.now() + '_' + index + item.name.substring(item.name.lastIndexOf('.'));
+  });
+  if (!res.tempFilePaths) {
+    res.tempFilePaths = res.tempFiles.map(function (file) {
+      return file.path;
+    });
+  }
+  return res;
+}
+function uploadCloudFiles(files) {
+  var max = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 5;
+  var _onUploadProgress = arguments.length > 2 ? arguments[2] : undefined;
+  files = JSON.parse(JSON.stringify(files));
+  var len = files.length;
+  var count = 0;
+  var self = this;
+  return new Promise(function (resolve) {
+    while (count < max) {
+      next();
+    }
+    function next() {
+      var cur = count++;
+      if (cur >= len) {
+        !files.find(function (item) {
+          return !item.url && !item.errMsg;
+        }) && resolve(files);
+        return;
+      }
+      var fileItem = files[cur];
+      var index = self.files.findIndex(function (v) {
+        return v.uuid === fileItem.uuid;
+      });
+      fileItem.url = '';
+      delete fileItem.errMsg;
+      uniCloud.uploadFile({
+        filePath: fileItem.path,
+        cloudPath: fileItem.cloudPath,
+        fileType: fileItem.fileType,
+        onUploadProgress: function onUploadProgress(res) {
+          res.index = index;
+          _onUploadProgress && _onUploadProgress(res);
+        }
+      }).then(function (res) {
+        fileItem.url = res.fileID;
+        fileItem.index = index;
+        if (cur < len) {
+          next();
+        }
+      }).catch(function (res) {
+        fileItem.errMsg = res.errMsg || res.message;
+        fileItem.index = index;
+        if (cur < len) {
+          next();
+        }
+      });
+    }
+  });
+}
+function uploadFiles(choosePromise, _ref) {
+  var onChooseFile = _ref.onChooseFile,
+    onUploadProgress = _ref.onUploadProgress;
+  return choosePromise.then(function (res) {
+    if (onChooseFile) {
+      var customChooseRes = onChooseFile(res);
+      if (typeof customChooseRes !== 'undefined') {
+        return Promise.resolve(customChooseRes).then(function (chooseRes) {
+          return typeof chooseRes === 'undefined' ? res : chooseRes;
+        });
+      }
+    }
+    return res;
+  }).then(function (res) {
+    if (res === false) {
+      return {
+        errMsg: ERR_MSG_OK,
+        tempFilePaths: [],
+        tempFiles: []
+      };
+    }
+    return res;
+  });
+}
+function chooseAndUploadFile() {
+  var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+    type: 'all'
+  };
+  if (opts.type === 'image') {
+    return uploadFiles(chooseImage(opts), opts);
+  } else if (opts.type === 'video') {
+    return uploadFiles(chooseVideo(opts), opts);
+  }
+  return uploadFiles(chooseAll(opts), opts);
+}
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"], __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/wx.js */ 1)["default"], __webpack_require__(/*! ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/uni-cloud/dist/index.js */ 27)["default"]))
+
+/***/ }),
+/* 692 */
+/*!*********************************************************************************************************!*\
+  !*** D:/桌面/uniapp/3/unicloud_community/uni_modules/uni-file-picker/components/uni-file-picker/utils.js ***!
+  \*********************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.get_files_and_is_max = exports.get_file_info = exports.get_file_ext = exports.get_file_data = exports.get_extname = void 0;
+var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 28));
+var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 30));
+/**
+ * 获取文件名和后缀
+ * @param {String} name
+ */
+var get_file_ext = function get_file_ext(name) {
+  var last_len = name.lastIndexOf('.');
+  var len = name.length;
+  return {
+    name: name.substring(0, last_len),
+    ext: name.substring(last_len + 1, len)
+  };
+};
+
+/**
+ * 获取扩展名
+ * @param {Array} fileExtname
+ */
+exports.get_file_ext = get_file_ext;
+var get_extname = function get_extname(fileExtname) {
+  if (!Array.isArray(fileExtname)) {
+    var extname = fileExtname.replace(/(\[|\])/g, '');
+    return extname.split(',');
+  } else {
+    return fileExtname;
+  }
+  return [];
+};
+
+/**
+ * 获取文件和检测是否可选
+ */
+exports.get_extname = get_extname;
+var get_files_and_is_max = function get_files_and_is_max(res, _extname) {
+  var filePaths = [];
+  var files = [];
+  if (!_extname || _extname.length === 0) {
+    return {
+      filePaths: filePaths,
+      files: files
+    };
+  }
+  res.tempFiles.forEach(function (v) {
+    var fileFullName = get_file_ext(v.name);
+    var extname = fileFullName.ext.toLowerCase();
+    if (_extname.indexOf(extname) !== -1) {
+      files.push(v);
+      filePaths.push(v.path);
+    }
+  });
+  if (files.length !== res.tempFiles.length) {
+    uni.showToast({
+      title: "\u5F53\u524D\u9009\u62E9\u4E86".concat(res.tempFiles.length, "\u4E2A\u6587\u4EF6 \uFF0C").concat(res.tempFiles.length - files.length, " \u4E2A\u6587\u4EF6\u683C\u5F0F\u4E0D\u6B63\u786E"),
+      icon: 'none',
+      duration: 5000
+    });
+  }
+  return {
+    filePaths: filePaths,
+    files: files
+  };
+};
+
+/**
+ * 获取图片信息
+ * @param {Object} filepath
+ */
+exports.get_files_and_is_max = get_files_and_is_max;
+var get_file_info = function get_file_info(filepath) {
+  return new Promise(function (resolve, reject) {
+    uni.getImageInfo({
+      src: filepath,
+      success: function success(res) {
+        resolve(res);
+      },
+      fail: function fail(err) {
+        reject(err);
+      }
+    });
+  });
+};
+/**
+ * 获取封装数据
+ */
+exports.get_file_info = get_file_info;
+var get_file_data = /*#__PURE__*/function () {
+  var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(files) {
+    var type,
+      fileFullName,
+      extname,
+      filedata,
+      imageinfo,
+      _args = arguments;
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            type = _args.length > 1 && _args[1] !== undefined ? _args[1] : 'image';
+            // 最终需要上传数据库的数据
+            fileFullName = get_file_ext(files.name);
+            extname = fileFullName.ext.toLowerCase();
+            filedata = {
+              name: files.name,
+              uuid: files.uuid,
+              extname: extname || '',
+              cloudPath: files.cloudPath,
+              fileType: files.fileType,
+              url: files.path || files.path,
+              size: files.size,
+              //单位是字节
+              image: {},
+              path: files.path,
+              video: {}
+            };
+            if (!(type === 'image')) {
+              _context.next = 14;
+              break;
+            }
+            _context.next = 7;
+            return get_file_info(files.path);
+          case 7:
+            imageinfo = _context.sent;
+            delete filedata.video;
+            filedata.image.width = imageinfo.width;
+            filedata.image.height = imageinfo.height;
+            filedata.image.location = imageinfo.path;
+            _context.next = 15;
+            break;
+          case 14:
+            delete filedata.image;
+          case 15:
+            return _context.abrupt("return", filedata);
+          case 16:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return function get_file_data(_x) {
+    return _ref.apply(this, arguments);
+  };
+}();
+exports.get_file_data = get_file_data;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
 /***/ })
 ]]);
 //# sourceMappingURL=../../.sourcemap/mp-weixin/common/vendor.js.map

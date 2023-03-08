@@ -17,6 +17,8 @@
         <button type="primary" class="uni-button" @click="submit">提交</button>
       </view>
     </uni-forms>
+	
+	 <uni-fab ref="fab" horizontal="right" vertical="bottom" :pop-menu="false" @fabClick="fabClick" />
   </view>
 </template>
 
@@ -63,6 +65,12 @@
       this.$refs.form.setRules(this.rules)
     },
     methods: {
+	//跳转到意见反馈界面列表
+	fabClick() {
+		uni.navigateTo({
+			url:'/uni_modules/uni-feedback/pages/opendb-feedback/list'
+		})
+	},
       /**
        * 触发表单提交
        */

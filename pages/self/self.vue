@@ -72,7 +72,7 @@
 							<view class="left"><text class="iconfont icon-shiyongwendang"></text><text class="text">关于</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
-					<view class="item">
+					<view class="item" @click="goFeedback">
 							<view class="left"><text class="iconfont icon-yijianfankui"></text><text class="text">意见反馈</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
@@ -108,6 +108,13 @@
 			}
 		},
 		methods: {
+			//跳转到意见反馈页面
+			goFeedback() {
+				if(this.isLoginPage()) return
+				uni.navigateTo({
+					url: '/uni_modules/uni-feedback/pages/opendb-feedback/edit'
+				})
+			},
 			//跳转到我的长文页面
 			toMyArticle() {
 				if(this.isLoginPage()) return 

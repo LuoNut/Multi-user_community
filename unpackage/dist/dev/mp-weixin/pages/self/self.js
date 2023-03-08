@@ -272,6 +272,13 @@ var _default = {
     }
   },
   methods: {
+    //跳转到意见反馈页面
+    goFeedback: function goFeedback() {
+      if (this.isLoginPage()) return;
+      uni.navigateTo({
+        url: '/uni_modules/uni-feedback/pages/opendb-feedback/edit'
+      });
+    },
     //跳转到我的长文页面
     toMyArticle: function toMyArticle() {
       if (this.isLoginPage()) return;
