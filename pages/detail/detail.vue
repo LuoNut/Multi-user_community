@@ -51,11 +51,10 @@
 </template>
 
 <script>
-	import {giveName, giveAvatar} from '../../utils/tools.js'
+	import {giveName, giveAvatar, likeFun} from '../../utils/tools.js'
 	import {store} from "@/uni_modules/uni-id-pages/common/store.js"
 	import pageJson from '@/pages.json'
-	console.log(pageJson);
-import { vShow } from "vue"
+	import { vShow } from "vue"
 	const db = uniCloud.database()
 	const utilsObj = uniCloud.importObject('utilsObj',{
 		customUI: true // 取消自动展示的交互提示界面
@@ -121,25 +120,8 @@ import { vShow } from "vue"
 				 this.artData.isLike = !this.artData.isLike
 				 this.likeTime = time
 				 
-				this.likeFun()
-			},
-			//点赞操作数据库的方法
-			async likeFun() {
-				//判断用户是否已经点过赞
-				let count = await db.collection("quanzi_like")
-				.where(`article_id=="${this.artId}" && user_id==$cloudEnv_uid`).count()
-				console.log(count);
-				if(count.result.total) {
-					db.collection("quanzi_like").where(`article_id=="${this.artId}" && user_id==$cloudEnv_uid`).remove()
-					utilsObj.operation('quanzi_article','like_count',this.artId,-1)
-				}else {
-					db.collection('quanzi_like').add({
-						article_id: this.artId
-					}).then((res) => {
-						console.log(res);
-						utilsObj.operation('quanzi_article','like_count',this.artId,1)
-					})
-				}
+				//点赞操作数据库的方法
+				likeFun(this.artId)
 			},
 			//错误处理
 			errFun(e) {

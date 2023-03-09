@@ -13,7 +13,7 @@
 					</uni-dateformat>
 				</view>
 			</view>
-			<view class="more" @click="onMore">
+			<view class="more" @click="clickMore">
 				<view class="iconfont icon-more">
 				</view>
 			</view>
@@ -45,7 +45,7 @@
 				<text class="iconfont icon-message"></text>
 				<text>{{item.comment_count ? item.comment_coun : '评论'}}</text>
 			</view>
-			<view class="box">
+			<view class="box" @click="onIsLike" :class="myItem.isLike ? 'active' : ''">
 				<text class="iconfont icon-praise"></text>
 				<text>{{item.like_count ? item.like_count : '点赞'}}</text>
 			</view>
@@ -62,7 +62,9 @@
 </template>
 
 <script>
-	import {giveName, giveAvatar} from '../../utils/tools.js'
+	import {giveName, giveAvatar,likeFun} from '../../utils/tools.js'
+	import {store} from "@/uni_modules/uni-id-pages/common/store.js"
+	const db = uniCloud.database()
 	export default {
 		name: "logItem",
 		props: {
@@ -79,23 +81,61 @@
 				list:[
 					{
 						name:"修改",
-						type:"dedit"
+						type:"dedit",
+						disabled:true
 					},
 					{
 						name:"删除",
 						type:"del",
-						color:"#f56c6c"
+						color:"#f56c6c",
+						disabled:true
 					}
-				]
+				],
+				myItem: this.item
 			};
 		},
 		onLoad() {
-			console.log(this.item);
 		},
 		methods: {
 			giveName, 
 			giveAvatar,
 			
+			//点赞
+			onIsLike() {
+				//判断用户是否登录，登录才能进行点赞操作
+				 if(!store.hasLogin) {
+					 uni.showModal({
+					 	title:"登录才能进行点赞哦，是否进行登录？",
+						success: (res) => {
+							console.log(res);
+							if(res.confirm) {
+								uni.navigateTo({
+									url: '/' + pageJson.uniIdRouter.loginPage
+								})
+							}
+						}
+					 })
+					return 
+				 }
+				 
+				 //防抖
+				 let time = Date.now()
+				 if(time - this.likeTime < 2000) {
+					 uni.showToast({
+					 	title:"点击太频繁了...",
+						icon:'none'
+					 })
+					 return
+				 }
+				 
+				 
+				 this.myItem.isLike ?  this.myItem.like_count-- :  this.myItem.like_count++
+				  this.myItem.isLike = ! this.myItem.isLike
+				 this.likeTime = time
+				 
+				//点赞操作数据库的方法
+				likeFun(this.myItem._id)
+			},
 			//点击sheet的取消选项
 			closeSheet() {
 				this.showSheet = false
@@ -103,10 +143,40 @@
 			//点击sheet的任意选项
 			selectSheet(e) {
 				this.showSheet = false
-				console.log(e);
+				console.log(e.type);
+				if(e.type == "del") {
+					this.moreDel()
+				}
+				
+			},
+			//更多选项的删除功能
+			moreDel() {
+				uni.showLoading({
+					title:"加载中..."
+				})
+				db.collection("quanzi_article").doc(this.item._id).update({
+					delState:true
+				}).then(res => {
+					uni.hideLoading()
+					uni.showToast({
+						title:"删除成功！",
+						icon:'none'
+					})
+					this.$emit("delEvent")
+				}).catch(err => {
+					console.log(err);
+					uni.hideLoading()
+				})
 			},
 			//点击更多按钮
-			onMore() {
+			clickMore() {
+				console.log(this.item);
+				let uid = uniCloud.getCurrentUserInfo().uid
+				if(uid == this.item.user_id[0]._id || this.uniIDHasRole('admin') || this.uniIDHasRole('webmaster')) {
+					this.list.forEach(item => {
+						item.disabled = false
+					})
+				}
 				this.showSheet = true
 			},
 			//跳转至detail页面
@@ -229,6 +299,9 @@
 					font-size: 40rpx;
 					padding-right: 10rpx;
 				}
+			}
+			.box.active {
+				color: #0199fe;
 			}
 		}
 	}

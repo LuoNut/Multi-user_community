@@ -7,7 +7,7 @@
 	"permission": {
 		"read": true,
 		"create": "auth.uid != null",
-		"update": "doc.user_id == auth.uid",
+		"update": "doc.user_id == auth.uid || 'webmaster' in auth.role ",
 		"delete": "doc.user_id == auth.uid"
 	},
 	"properties": {
@@ -28,6 +28,12 @@
 			"description": "标题",
 			"label": "标题",
 			"trim": "both"
+		},
+		"delState": {
+			"bsonType": "bool",
+			"title": "是否已被删除",
+			"description": "ture表示已被删除，false吧iOS未被删除",
+			"defaultValue": false
 		},
 		"province": {
 			"bsonType": "string",

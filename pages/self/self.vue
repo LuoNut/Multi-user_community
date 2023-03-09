@@ -143,6 +143,7 @@
 						if(e.confirm) {
 							mutations.logout()
 						}
+						
 					}
 				})
 			},

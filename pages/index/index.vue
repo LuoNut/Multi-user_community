@@ -30,9 +30,11 @@
 		<!-- 内容部分 -->
 		<view class="content">
 			<view class="Item" v-for="item in articleData">
-				<logItem :item="item"></logItem>
+				<logItem @delEvent="P_delEvent" :item="item"></logItem>
 			</view>
 		</view>
+		
+		<uni-load-more :status="uniLoad"></uni-load-more>
 		
 		<!-- 编辑按钮 -->
 		<view class="edit" @click="toEdit">
@@ -44,6 +46,8 @@
 
 <script>
 	const db = uniCloud.database()
+	const dbCmd = db.command
+	import {store, mutations} from "@/uni_modules/uni-id-pages/common/store.js"
 	export default {
 		data() {
 			return {
@@ -60,24 +64,83 @@
 				loadingState: true,
 				navActive: 0,
 				articleData: [],
+				uniLoad:"more",
+				noMore: false
 				
 			}
+		},
+		onReachBottom() {
+			this.ReachBottom()
 		},
 		onLoad() {
 			this.getArticleData()
 		},
 		methods: {
+			//上拉触底的功能函数
+			ReachBottom() {
+				this.uniLoad = "loading"
+				if(this.noMore) {
+					console.log("11");
+					this.uniLoad = "noMore"
+					return 
+				}
+				this.getArticleData()
+			},
+			//用户删除某一篇文章，重新刷新页面
+			P_delEvent() {
+				this.articleData = []
+				this.getArticleData()
+			},
 			//获取文章数据
 			getArticleData() {
-				let artTemp = db.collection("quanzi_article").field("user_id,like_count,view_count,comment_count,title,publish_date,description,picurls,province").getTemp()
+				let artTemp = db.collection("quanzi_article").where(`delState != true`).field("user_id,like_count,view_count,comment_count,title,publish_date,description,picurls,province").getTemp()
 				let userTemp = db.collection("uni-id-users").field("_id,username,nickname,avatar_file").getTemp()
 				
-				db.collection(artTemp,userTemp).orderBy(this.navList[this.navActive].type,"desc").get().then(res => {
-					console.log(res);	
-					this.articleData = res.result.data
+				db.collection(artTemp,userTemp).orderBy(this.navList[this.navActive].type,"desc").skip(this.articleData.length).limit(5).get().then( async res => {
+					
+					if(!res.result.data.length) {
+						this.ReachBottom()
+						this.noMore = true
+						return 
+					}
+					let oldData = this.articleData
+					//获取全部的文章id列表
+					let idArr = []
+					let resDataArr = [...oldData,...res.result.data]
+					
+					//是否登录判断
+					if(store.hasLogin) {
+						resDataArr.forEach(item => {
+							idArr.push(item._id)
+						})
+						console.log(idArr);
+						console.log(uniCloud.getCurrentUserInfo());
+						//获取已经点赞的文章id列表
+						let likeRes = await db.collection("quanzi_like").where({
+							article_id:dbCmd.in(idArr),//获取已经点赞的文章id列表
+							user_id:uniCloud.getCurrentUserInfo().uid
+						}).get()
+						console.log(resDataArr);
+						console.log(likeRes.result.data);
+						
+						//获取已经点赞的文章下标，为其添加isLike属性
+						likeRes.result.data.forEach(item => {
+							let index = resDataArr.findIndex(find => {
+								return item.article_id === find._id
+							})
+							console.log(index);
+							resDataArr[index].isLike = true
+						})
+					}
+					
+					
+					//储存获取到的文章数据
+					this.articleData = resDataArr
 					this.loadingState = false
-					console.log(this.articleData);
 				})
+				
+				
+				
 			},
 			//点击导航标签
 			navClick(e) {
@@ -85,6 +148,8 @@
 				this.articleData = []
 				this.navActive = e.index
 				this.getArticleData()
+				this.uniLoad = more
+				this.noMore = false
 			},
 			//跳转至edit页面
 			toEdit() {
