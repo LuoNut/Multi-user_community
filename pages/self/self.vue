@@ -123,9 +123,8 @@
 				.groupBy("user_id")
 				.groupField('sum(like_count) as detal')
 				.get()
-				console.log(likeNum);
 				this.total.artNum = artNum.result.total
-				this.total.likeNum = likeNum.result.data[0].detal
+				this.total.likeNum = likeNum.result.data[0]?.detal
 			},
 			//跳转到意见反馈页面
 			goFeedback() {

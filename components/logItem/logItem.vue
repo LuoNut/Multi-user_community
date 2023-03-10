@@ -64,6 +64,7 @@
 <script>
 	import {giveName, giveAvatar,likeFun} from '../../utils/tools.js'
 	import {store} from "@/uni_modules/uni-id-pages/common/store.js"
+	import pageJson from '@/pages.json'
 	const db = uniCloud.database()
 	export default {
 		name: "logItem",
@@ -134,6 +135,7 @@
 				 this.likeTime = time
 				 
 				//点赞操作数据库的方法
+				console.log("111");
 				likeFun(this.myItem._id)
 			},
 			//点击sheet的取消选项

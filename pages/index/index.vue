@@ -73,6 +73,7 @@
 			this.ReachBottom()
 		},
 		onLoad() {
+			console.log(store.hasLogin);
 			this.getArticleData()
 		},
 		methods: {
@@ -92,9 +93,10 @@
 				this.getArticleData()
 			},
 			//获取文章数据
-			getArticleData() {
+			async getArticleData() {
+				console.log(store.hasLogin);
 				let artTemp = db.collection("quanzi_article").where(`delState != true`).field("user_id,like_count,view_count,comment_count,title,publish_date,description,picurls,province").getTemp()
-				let userTemp = db.collection("uni-id-users").field("_id,username,nickname,avatar_file").getTemp()
+				let userTemp = await db.collection("uni-id-users").field("_id,username,nickname,avatar_file").getTemp()
 				
 				db.collection(artTemp,userTemp).orderBy(this.navList[this.navActive].type,"desc").skip(this.articleData.length).limit(5).get().then( async res => {
 					
@@ -104,31 +106,29 @@
 						return 
 					}
 					let oldData = this.articleData
+					console.log(res.result.data);
 					//获取全部的文章id列表
 					let idArr = []
 					let resDataArr = [...oldData,...res.result.data]
+					console.log(store.hasLogin);
 					
 					//是否登录判断
 					if(store.hasLogin) {
+						console.log("11");
 						resDataArr.forEach(item => {
 							idArr.push(item._id)
 						})
-						console.log(idArr);
-						console.log(uniCloud.getCurrentUserInfo());
 						//获取已经点赞的文章id列表
 						let likeRes = await db.collection("quanzi_like").where({
 							article_id:dbCmd.in(idArr),//获取已经点赞的文章id列表
 							user_id:uniCloud.getCurrentUserInfo().uid
 						}).get()
-						console.log(resDataArr);
-						console.log(likeRes.result.data);
 						
 						//获取已经点赞的文章下标，为其添加isLike属性
 						likeRes.result.data.forEach(item => {
 							let index = resDataArr.findIndex(find => {
 								return item.article_id === find._id
 							})
-							console.log(index);
 							resDataArr[index].isLike = true
 						})
 					}

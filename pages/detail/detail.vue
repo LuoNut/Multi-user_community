@@ -39,7 +39,10 @@
 					<text v-show="artData.like_count">{{artData.like_count}}</text>
 				</view>
 				<view class="users">
-					<image src="../../static/images/user.jpg" mode="aspectFill"></image>
+					<template v-for="item in userLikeArr">
+						<image :src="giveAvatar(item)" mode="aspectFill"></image>
+					</template>
+					
 				</view>
 				<view class="text">
 					<text class="num">{{artData.view_count}}</text>
@@ -68,7 +71,8 @@
 					img: 'margin:10rpx 0'
 				},
 				loadingState: true,
-				artData: {}
+				artData: {},
+				userLikeArr: []
 			};
 		},
 		onLoad(e) {
@@ -79,16 +83,28 @@
 			this.artId = e.id
 			this.getData()
 			this.readUpdata()
+			this.getUserLikeAvatar()
 		},
 		methods: {
 			giveName, 
 			giveAvatar,
+			//获取最近点赞用户头像
+			getUserLikeAvatar() {
+				let likeTemp = db.collection("quanzi_like").where(`article_id=="${this.artId}"`).getTemp()
+				let userTemp = db.collection("uni-id-users").field("_id,avatar_file").getTemp()
+				
+				db.collection(likeTemp,userTemp).orderBy("comment_date desc").limit(5).get().then(res => {
+					console.log(res.result.data);
+					this.userLikeArr = res.result.data.reverse()
+				})
+			},
 			//记录阅读量
 			readUpdata() {
 				utilsObj.operation('quanzi_article','view_count',this.artId,2)
 			},
 			//记录点赞量
-			 likeUpdata() {
+			likeUpdata() {
+				 console.log("111");
 				 //判断用户是否登录，登录才能进行点赞操作
 				 if(!store.hasLogin) {
 					 uni.showModal({

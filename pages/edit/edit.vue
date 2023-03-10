@@ -14,7 +14,7 @@
 			<view class="item" @click="clickHeader"><text :class="showHeader ? 'active' : ''"
 					class="iconfont icon-zitibiaoti"></text></view>
 			<view class="item" @click="clickBold"><text :class="showBold ? 'active' : ''"
-					class="iconfont icon-zitibiaoti"></text></view>
+					class="iconfont icon-zitijiacu"></text></view>
 			<view class="item" @click="clickItalic"><text :class="showItalic ? 'active' : ''"
 					class="iconfont icon-zitixieti"></text></view>
 			<view class="item" @click="clickDivider"><text class="iconfont icon-fengexian"></text></view>
@@ -25,7 +25,10 @@
 </template>
 
 <script>
-	import {getImgSrc, getProvince} from "@/utils/tools.js"
+	import {
+		getImgSrc,
+		getProvince
+	} from "@/utils/tools.js"
 	const db = uniCloud.database()
 	export default {
 		data() {
@@ -55,15 +58,15 @@
 					title: "发布中..."
 				})
 				this.editorCtx.getContents({
-					success:(e) => {
+					success: (e) => {
 						this.artobj.content = e.html
-						this.artobj.description = e.text.slice(0,80)
+						this.artobj.description = e.text.slice(0, 80)
 						this.artobj.picurls = getImgSrc(e.html)
 						this.setData()
 					}
 				})
 			},
-			
+
 			//上传到云数据库的功能函数
 			setData() {
 				db.collection('quanzi_article').add({
@@ -72,17 +75,17 @@
 					console.log(res);
 					uni.hideLoading()
 					uni.showToast({
-						title:"发布成功"
+						title: "发布成功"
 					})
 					setTimeout(() => {
 						uni.reLaunch({
-							url:"/pages/index/index"
+							url: "/pages/index/index"
 						})
 					}, 800);
-					
+
 				})
 			},
-			
+
 			//富文本获取焦点
 			onfocus() {
 				this.showTool = true
@@ -149,7 +152,7 @@
 				this.showTool = false
 			},
 
-			//判断是否使用了某种样式的功能函数
+			//判断是否使用了某种样式的功能函数	
 			checkStatus(name, detail, obj) {
 				if (detail.hasOwnProperty(name)) {
 					this[obj] = true
@@ -157,13 +160,14 @@
 					this[obj] = false
 				}
 			},
-
+			
 			//当编辑器内样式改变时
 			statuschange(e) {
 				let detail = e.detail
+				console.log(e);
 				this.checkStatus("header", detail, 'showHeader')
-				this.checkStatus("bold", detail, 'clickBold')
-				this.checkStatus("italic", detail, 'clickItalic')
+				this.checkStatus("bold", detail, 'showBold')
+				this.checkStatus("italic", detail, 'showItalic')
 			}
 		}
 
