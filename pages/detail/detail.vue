@@ -15,14 +15,14 @@
 						  </view>
 						  <view class="userInfo">
 						  	<view class="avatar">
-						  		<image :src="artData.user_id[0].avatar_file ? item.user_id[0].avatar_file : '/static/images/user-default.jpg'"></image>
+						  		<image :src="giveAvatar(artData)"></image>
 						  	</view>
 						  	<view class="text">
 						  		<view class="name">
-						  			{{artData.user_id[0].nickname ? artData.user_id[0].nickname : artData.user_id[0].username}}
+						  			{{giveName(artData)}}
 						  		</view>
 						  		<view class="small">
-						  			<uni-dateformat :date="artData.puartDatablish_date" format="yyyy-MM-dd hh:mm" >
+						  			<uni-dateformat :date="artData.publish_date" format="yyyy-MM-dd hh:mm" >
 						  			</uni-dateformat>，发布于{{artData.province}}
 						  		</view>
 						  	</view>
@@ -51,6 +51,10 @@
 </template>
 
 <script>
+	import {giveName, giveAvatar, likeFun} from '../../utils/tools.js'
+	import {store} from "@/uni_modules/uni-id-pages/common/store.js"
+	import pageJson from '@/pages.json'
+	import { vShow } from "vue"
 	const db = uniCloud.database()
 	const utilsObj = uniCloud.importObject('utilsObj',{
 		customUI: true // 取消自动展示的交互提示界面
@@ -77,12 +81,30 @@
 			this.readUpdata()
 		},
 		methods: {
+			giveName, 
+			giveAvatar,
 			//记录阅读量
 			readUpdata() {
 				utilsObj.operation('quanzi_article','view_count',this.artId,2)
 			},
 			//记录点赞量
 			 likeUpdata() {
+				 //判断用户是否登录，登录才能进行点赞操作
+				 if(!store.hasLogin) {
+					 uni.showModal({
+					 	title:"登录才能进行点赞哦，是否进行登录？",
+						success: (res) => {
+							console.log(res);
+							if(res.confirm) {
+								uni.navigateTo({
+									url: '/' + pageJson.uniIdRouter.loginPage
+								})
+							}
+						}
+					 })
+					return 
+				 }
+				 
 				 //防抖
 				 let time = Date.now()
 				 if(time - this.likeTime < 2000) {
@@ -98,25 +120,8 @@
 				 this.artData.isLike = !this.artData.isLike
 				 this.likeTime = time
 				 
-				this.likeFun()
-			},
-			//点赞操作数据库的方法
-			async likeFun() {
-				//判断用户是否已经点过赞
-				let count = await db.collection("quanzi_like")
-				.where(`article_id=="${this.artId}" && user_id==$cloudEnv_uid`).count()
-				console.log(count);
-				if(count.result.total) {
-					db.collection("quanzi_like").where(`article_id=="${this.artId}" && user_id==$cloudEnv_uid`).remove()
-					utilsObj.operation('quanzi_article','like_count',this.artId,-1)
-				}else {
-					db.collection('quanzi_like').add({
-						article_id: this.artId
-					}).then((res) => {
-						console.log(res);
-						utilsObj.operation('quanzi_article','like_count',this.artId,1)
-					})
-				}
+				//点赞操作数据库的方法
+				likeFun(this.artId)
 			},
 			//错误处理
 			errFun(e) {
@@ -136,18 +141,29 @@
 				let userTemp = db.collection("uni-id-users").field("_id,username,nickname,avatar_file").getTemp()
 				
 				let likeTemp = db.collection(("quanzi_like")).where(`article_id=="${this.artId}" && user_id==$cloudEnv_uid`).getTemp()
-					
-				db.collection(artTemp,userTemp,likeTemp).get({
+				
+				//判断用户是否登录,来决定是否获取该用户的点赞数据
+				let arr = [artTemp,userTemp]
+				if(store.hasLogin) {
+					arr.push(likeTemp)
+				}
+				
+				db.collection(...arr).get({
 					getOne:true
 				}).then((res) => {
 					if(!res.result.data) {
 						this.errFun()
 						return
 					}
-					let isLike = res.result.data._id.quanzi_like.length ? true : false
+					
+					let isLike = false
+					if(store.hasLogin) isLike = res.result.data._id.quanzi_like.length ? true : false
+					
 					res.result.data.isLike = isLike
+					
 					this.artData = res.result.data
 					this.loadingState = false
+					console.log(this.artData);
 					uni.setNavigationBarTitle({
 						title:res.result.data.title	
 					})

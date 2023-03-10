@@ -3,20 +3,17 @@
 		<view class="head">
 			<view class="userInfo">
 				<view class="avatar">
-					<image 
-						:src="item.user_id[0].avatar_file ? item.user_id[0].avatar_file : '/static/images/user-default.jpg'" 
-						mode="aspectFill">
-					</image>
+					<image :src="giveAvatar(item)"></image>
 				</view>
 				<view class="name">
-					{{item.user_id[0].nickname ? item.user_id[0].nickname : item.user_id[0].username}}
+					{{giveName(item)}}
 				</view>
 				<view class="time">
 					<uni-dateformat :date="item.publish_date" :threshold="[60000,60000 * 60 * 24 * 30]" format="MM-dd hh-mm" >
 					</uni-dateformat>
 				</view>
 			</view>
-			<view class="more">
+			<view class="more" @click="clickMore">
 				<view class="iconfont icon-more">
 				</view>
 			</view>
@@ -26,12 +23,12 @@
 			<view class="title" @click="toDetail">
 				{{item.title}}
 			</view>
-			<view class="text" @click="toDetail">
+			<view class="text" @click="toDetail" v-if="item.description">
 				<view class="t">
 					{{item.description}}
 				</view>
 			</view>
-			<view class="picList">
+			<view class="picList" v-if="item.picurls.length">
 				<view class="pic" :class="item.picurls.length == 1 ? 'only' : ''" v-for="(pic, index) in item.picurls" >
 					<image @click="clickImage(index)" :src="pic" mode="aspectFill">
 					</image>
@@ -48,17 +45,26 @@
 				<text class="iconfont icon-message"></text>
 				<text>{{item.comment_count ? item.comment_coun : '评论'}}</text>
 			</view>
-			<view class="box">
+			<view class="box" @click="onIsLike" :class="myItem.isLike ? 'active' : ''">
 				<text class="iconfont icon-praise"></text>
 				<text>{{item.like_count ? item.like_count : '点赞'}}</text>
 			</view>
 		</view>
-
-
+		
+		
+		<u-action-sheet cancelText="取消" :actions="list" :show="showSheet"
+			closeOnClickOverlay
+			closeOnClickAction
+			@select="selectSheet"
+			@close="closeSheet"
+		></u-action-sheet>
 	</view>
 </template>
 
 <script>
+	import {giveName, giveAvatar,likeFun} from '../../utils/tools.js'
+	import {store} from "@/uni_modules/uni-id-pages/common/store.js"
+	const db = uniCloud.database()
 	export default {
 		name: "logItem",
 		props: {
@@ -71,9 +77,108 @@
 		},
 		data() {
 			return {
+				showSheet: false,
+				list:[
+					{
+						name:"修改",
+						type:"dedit",
+						disabled:true
+					},
+					{
+						name:"删除",
+						type:"del",
+						color:"#f56c6c",
+						disabled:true
+					}
+				],
+				myItem: this.item
 			};
 		},
+		onLoad() {
+		},
 		methods: {
+			giveName, 
+			giveAvatar,
+			
+			//点赞
+			onIsLike() {
+				//判断用户是否登录，登录才能进行点赞操作
+				 if(!store.hasLogin) {
+					 uni.showModal({
+					 	title:"登录才能进行点赞哦，是否进行登录？",
+						success: (res) => {
+							console.log(res);
+							if(res.confirm) {
+								uni.navigateTo({
+									url: '/' + pageJson.uniIdRouter.loginPage
+								})
+							}
+						}
+					 })
+					return 
+				 }
+				 
+				 //防抖
+				 let time = Date.now()
+				 if(time - this.likeTime < 2000) {
+					 uni.showToast({
+					 	title:"点击太频繁了...",
+						icon:'none'
+					 })
+					 return
+				 }
+				 
+				 
+				 this.myItem.isLike ?  this.myItem.like_count-- :  this.myItem.like_count++
+				  this.myItem.isLike = ! this.myItem.isLike
+				 this.likeTime = time
+				 
+				//点赞操作数据库的方法
+				likeFun(this.myItem._id)
+			},
+			//点击sheet的取消选项
+			closeSheet() {
+				this.showSheet = false
+			},
+			//点击sheet的任意选项
+			selectSheet(e) {
+				this.showSheet = false
+				console.log(e.type);
+				if(e.type == "del") {
+					this.moreDel()
+				}
+				
+			},
+			//更多选项的删除功能
+			moreDel() {
+				uni.showLoading({
+					title:"加载中..."
+				})
+				db.collection("quanzi_article").doc(this.item._id).update({
+					delState:true
+				}).then(res => {
+					uni.hideLoading()
+					uni.showToast({
+						title:"删除成功！",
+						icon:'none'
+					})
+					this.$emit("delEvent")
+				}).catch(err => {
+					console.log(err);
+					uni.hideLoading()
+				})
+			},
+			//点击更多按钮
+			clickMore() {
+				console.log(this.item);
+				let uid = uniCloud.getCurrentUserInfo().uid
+				if(uid == this.item.user_id[0]._id || this.uniIDHasRole('admin') || this.uniIDHasRole('webmaster')) {
+					this.list.forEach(item => {
+						item.disabled = false
+					})
+				}
+				this.showSheet = true
+			},
 			//跳转至detail页面
 			toDetail() {
 				uni.navigateTo({
@@ -194,6 +299,9 @@
 					font-size: 40rpx;
 					padding-right: 10rpx;
 				}
+			}
+			.box.active {
+				color: #0199fe;
 			}
 		}
 	}

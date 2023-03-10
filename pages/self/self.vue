@@ -15,7 +15,7 @@
 							{{userInfo.nickname||userInfo.username||userInfo.moblie}}
 						</view>
 						<view class="year">
-							<uni-dateformat :date="new Date() - 360000" :threshold="[3600,99*365*24*60*60*1000]"></uni-dateformat>
+							<uni-dateformat :date="userInfo.register_date" :threshold="[3600,99*365*24*60*60*1000]"></uni-dateformat>
 							注册
 						</view>
 					</view>
@@ -41,46 +41,46 @@
 		<view class="main">
 			<view class="info">
 				<view class="item">
-					<text>33</text>获赞
+					<text>{{total.likeNum}}</text>获赞
 				</view>
 				<view class="item">
-					<text>11</text>评论
+					<!-- <text>11</text>评论 -->
 				</view>
 				<view class="item">
-					<text>5</text>发文
+					<text>{{total.artNum}}</text>发文
 				</view>
 			</view>
 			
 			<view class="list">
 				<view class="group">
-					<view class="item">
+					<view class="item" @click="toMyArticle">
 							<view class="left"><text class="iconfont icon-tianxie"></text><text class="text">我的长文</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
-					<view class="item">
-							<view class="left"><text class="iconfont icon-dianzan"></text><text class="text">我的长文</text></view>
+					<view class="item" @click="toMyLike">
+							<view class="left"><text class="iconfont icon-dianzan"></text><text class="text">我的点赞</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
 					<view class="item">
-							<view class="left"><text class="iconfont icon-brush"></text><text class="text">我的长文</text></view>
+							<view class="left"><text class="iconfont icon-brush"></text><text class="text">评论过的</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
 				</view>
 				
 				<view class="group">
 					<view class="item">
-							<view class="left"><text class="iconfont icon-shiyongwendang"></text><text class="text">我的长文</text></view>
+							<view class="left"><text class="iconfont icon-shiyongwendang"></text><text class="text">关于</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
-					<view class="item">
-							<view class="left"><text class="iconfont icon-yijianfankui"></text><text class="text">我的长文</text></view>
+					<view class="item" @click="goFeedback">
+							<view class="left"><text class="iconfont icon-yijianfankui"></text><text class="text">意见反馈</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
 				</view>
 				
 				<view class="group">
 					<view class="item" @click="logout">
-							<view class="left"><text class="iconfont icon-tuichudenglu"></text><text class="text">我的长文</text></view>
+							<view class="left"><text class="iconfont icon-tuichudenglu"></text><text class="text">退出登录</text></view>
 							<view class="right"><text class="iconfont icon-enter"></text></view>
 					</view>
 				</view>
@@ -93,10 +93,14 @@
 
 <script>
 	import {store, mutations} from "@/uni_modules/uni-id-pages/common/store.js"
+	const db = uniCloud.database()
 	export default {
 		data() {
 			return {
-				
+				total: {
+					artNum: 0,
+					likeNum:0
+				}
 			};
 		},
 		computed: {
@@ -107,28 +111,71 @@
 				return store.hasLogin
 			}
 		},
+		onLoad() {
+			this.getTotal()
+		},
 		methods: {
+			//获取发文，评论，点赞数量详情
+			async getTotal() {
+				if(!this.hasLogin) return 
+				let artNum = await db.collection("quanzi_article").where("user_id==$cloudEnv_uid").count()
+				let likeNum = await db.collection("quanzi_article").where("user_id==$cloudEnv_uid")
+				.groupBy("user_id")
+				.groupField('sum(like_count) as detal')
+				.get()
+				console.log(likeNum);
+				this.total.artNum = artNum.result.total
+				this.total.likeNum = likeNum.result.data[0].detal
+			},
+			//跳转到意见反馈页面
+			goFeedback() {
+				if(this.isLoginPage()) return
+				uni.navigateTo({
+					url: '/uni_modules/uni-feedback/pages/opendb-feedback/edit'
+				})
+			},
+			//跳转到我的长文页面
+			toMyArticle() {
+				if(this.isLoginPage()) return 
+				uni.navigateTo({
+					url: '/pages/quanzi_article/list'
+				})
+			},
+			//跳转到我的点赞页面
+			toMyLike() {
+				if(this.isLoginPage()) return 
+				uni.navigateTo({
+					url: '/pages/quanzi_like/list'
+				})
+			},
+			//跳转到个人用户信息界面
 			toUserInfo() {
 				uni.navigateTo({
 					url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo'
 				}) 
 			},
 			logout() {
-				if(!this.hasLogin) {
-					uni.showToast({
-						title:"还未登录",
-						icon:"none"
-					})
-					return 
-				}
+				if(this.isLoginPage()) return 
 				uni.showModal({
 					title: "是否确认退出登录",
 					success: (e) => {
 						if(e.confirm) {
 							mutations.logout()
 						}
+						
 					}
 				})
+			},
+			//判断是否未登录 true未登录 false已登录
+			isLoginPage() {
+				if(!this.hasLogin) {
+					uni.showToast({
+						title: "未登录",
+						icon:"none"
+					})
+					return true
+				}
+				return false
 			}
 		}
 	}
