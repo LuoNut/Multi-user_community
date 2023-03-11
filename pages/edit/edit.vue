@@ -72,7 +72,6 @@
 				db.collection('quanzi_article').add({
 					...this.artobj
 				}).then(res => {
-					console.log(res);
 					uni.hideLoading()
 					uni.showToast({
 						title: "发布成功"
@@ -164,7 +163,6 @@
 			//当编辑器内样式改变时
 			statuschange(e) {
 				let detail = e.detail
-				console.log(e);
 				this.checkStatus("header", detail, 'showHeader')
 				this.checkStatus("bold", detail, 'showBold')
 				this.checkStatus("italic", detail, 'showItalic')

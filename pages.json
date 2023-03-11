@@ -142,7 +142,16 @@
 				"navigationBarTitleText": "详情"
 			}
 		}
-	],
+	    ,{
+            "path" : "pages/reply/reply",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+    ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "交流圈子",

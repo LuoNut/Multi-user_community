@@ -50,6 +50,25 @@
 				</view>
 			</view>
 		</view>
+	
+		<view class="comment">
+			<view  v-if="noComment">
+				<u-empty
+				        mode="comment"
+				        icon="http://cdn.uviewui.com/uview/empty/comment.png"
+				>
+				</u-empty>
+			</view>
+			<view class="content">
+				<view class="item" v-for="item in commentList">
+					<commentItem :item="item" @removeEvn="P_deteleEvn" ></commentItem>
+				</view>
+				
+			</view>
+		</view>
+		
+		<commentFrame @commentEvn="P_commentEvn" :commentObj="commentObj" ></commentFrame>
+	
 	</view>
 </template>
 
@@ -72,7 +91,13 @@
 				},
 				loadingState: true,
 				artData: {},
-				userLikeArr: []
+				userLikeArr: [],
+				commentObj: {
+					article_id:"",
+					comment_type: 0
+				},
+				commentList:[],
+				noComment:false //文章是否有评论数据
 			};
 		},
 		onLoad(e) {
@@ -81,20 +106,70 @@
 				return
 			}
 			this.artId = e.id
+			this.commentObj.article_id = e.id
 			this.getData()
 			this.readUpdata()
 			this.getUserLikeAvatar()
+			this.getArticleComment()
 		},
 		methods: {
 			giveName, 
 			giveAvatar,
+			//评论删除的回调
+			P_deteleEvn(e) {
+				let index = this.commentList.findIndex(index => {
+					return e == index._id
+				})
+				this.commentList.splice(index, 1)
+			},
+			//评论成功的回调
+			P_commentEvn(e) {
+				this.commentList.unshift({
+					"user_id":[store.userInfo],
+					...e,
+					...this.commentObj,
+					"comment_date":Date.now()
+				})
+			},
+			
+			//获取文章评论
+			async getArticleComment() {
+				let commentTemp = db.collection("quanzi_comment").where(`article_id == "${this.artId}" && comment_type==0`).getTemp()
+				let userTemp = db.collection("uni-id-users").field("_id,username,nickname,avatar_file").getTemp()
+				
+				let res = await db.collection(commentTemp,userTemp).orderBy("comment_date desc").get()
+
+					
+					//获取一级评论所对应的二级评论的回复量
+					let idArr = res.result.data.map(item => {
+						return item._id
+					})
+
+					let replyArr = await db.collection("quanzi_comment").where({
+						reply_comment_id:db.command.in(idArr)
+					}).groupBy('reply_comment_id')
+					.groupField('count(*) as totalReply')
+					.get()
+					
+
+					res.result.data.forEach(item => {
+						 let index = replyArr.result.data.findIndex(find => {
+							return item._id == find.reply_comment_id
+						})
+
+						if(index > -1) item.totalReply = replyArr.result.data[index].totalReply
+					})
+					
+					if(!res.result.data.length) this.noComment = true
+					this.commentList = res.result.data
+			},
 			//获取最近点赞用户头像
 			getUserLikeAvatar() {
 				let likeTemp = db.collection("quanzi_like").where(`article_id=="${this.artId}"`).getTemp()
 				let userTemp = db.collection("uni-id-users").field("_id,avatar_file").getTemp()
 				
 				db.collection(likeTemp,userTemp).orderBy("comment_date desc").limit(5).get().then(res => {
-					console.log(res.result.data);
+
 					this.userLikeArr = res.result.data.reverse()
 				})
 			},
@@ -104,13 +179,13 @@
 			},
 			//记录点赞量
 			likeUpdata() {
-				 console.log("111");
+
 				 //判断用户是否登录，登录才能进行点赞操作
 				 if(!store.hasLogin) {
 					 uni.showModal({
 					 	title:"登录才能进行点赞哦，是否进行登录？",
 						success: (res) => {
-							console.log(res);
+
 							if(res.confirm) {
 								uni.navigateTo({
 									url: '/' + pageJson.uniIdRouter.loginPage
@@ -179,7 +254,7 @@
 					
 					this.artData = res.result.data
 					this.loadingState = false
-					console.log(this.artData);
+
 					uni.setNavigationBarTitle({
 						title:res.result.data.title	
 					})
@@ -196,7 +271,7 @@
 <style lang="scss" scoped>
 	.detail {
 		background-color: #f8f8f8;
-		height: calc(100vh - var(--window-top));
+		min-height: calc(100vh - var(--window-top));
 		.container {
 			background-color: #fff;
 			padding: 30rpx;
@@ -277,6 +352,15 @@
 				
 			}
 			
+		}
+	
+		.comment {
+			padding: 30rpx;
+			padding-bottom: 120rpx;
+			
+		.item {
+			padding: 10rpx 0;
+		}
 		}
 	}
 </style>

@@ -73,7 +73,6 @@
 			this.ReachBottom()
 		},
 		onLoad() {
-			console.log(store.hasLogin);
 			this.getArticleData()
 		},
 		methods: {
@@ -81,7 +80,6 @@
 			ReachBottom() {
 				this.uniLoad = "loading"
 				if(this.noMore) {
-					console.log("11");
 					this.uniLoad = "noMore"
 					return 
 				}
@@ -94,7 +92,6 @@
 			},
 			//获取文章数据
 			async getArticleData() {
-				console.log(store.hasLogin);
 				let artTemp = db.collection("quanzi_article").where(`delState != true`).field("user_id,like_count,view_count,comment_count,title,publish_date,description,picurls,province").getTemp()
 				let userTemp = await db.collection("uni-id-users").field("_id,username,nickname,avatar_file").getTemp()
 				
@@ -106,15 +103,12 @@
 						return 
 					}
 					let oldData = this.articleData
-					console.log(res.result.data);
 					//获取全部的文章id列表
 					let idArr = []
 					let resDataArr = [...oldData,...res.result.data]
-					console.log(store.hasLogin);
 					
 					//是否登录判断
 					if(store.hasLogin) {
-						console.log("11");
 						resDataArr.forEach(item => {
 							idArr.push(item._id)
 						})
@@ -148,7 +142,7 @@
 				this.articleData = []
 				this.navActive = e.index
 				this.getArticleData()
-				this.uniLoad = more
+				this.uniLoad = "more"
 				this.noMore = false
 			},
 			//跳转至edit页面

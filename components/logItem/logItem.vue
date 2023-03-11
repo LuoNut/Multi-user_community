@@ -43,7 +43,7 @@
 			</view>
 			<view class="box" @click="toDetail">
 				<text class="iconfont icon-message"></text>
-				<text>{{item.comment_count ? item.comment_coun : '评论'}}</text>
+				<text>{{item.comment_count ? item.comment_count : '评论'}}</text>
 			</view>
 			<view class="box" @click="onIsLike" :class="myItem.isLike ? 'active' : ''">
 				<text class="iconfont icon-praise"></text>
@@ -172,7 +172,6 @@
 			},
 			//点击更多按钮
 			clickMore() {
-				console.log(this.item);
 				let uid = uniCloud.getCurrentUserInfo().uid
 				if(uid == this.item.user_id[0]._id || this.uniIDHasRole('admin') || this.uniIDHasRole('webmaster')) {
 					this.list.forEach(item => {

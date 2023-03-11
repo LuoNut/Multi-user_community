@@ -149,9 +149,17 @@
 			},
 			//跳转到个人用户信息界面
 			toUserInfo() {
-				uni.navigateTo({
-					url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo'
-				}) 
+				if(this.hasLogin) {		
+					uni.navigateTo({
+						url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo'
+					}) 
+				}else {
+					uni.navigateTo({
+						url: '/uni_modules/uni-id-pages/pages/login/login-withpwd?uniIdRedirecyUrl'
+					})
+					
+				}
+				
 			},
 			logout() {
 				if(this.isLoginPage()) return 
