@@ -124,6 +124,9 @@
 			},
 			//评论成功的回调
 			P_commentEvn(e) {
+				if(!this.commentList.length) {
+					this.noComment = false
+				}
 				this.commentList.unshift({
 					"user_id":[store.userInfo],
 					...e,
@@ -180,8 +183,8 @@
 			//记录点赞量
 			likeUpdata() {
 
-				 //判断用户是否登录，登录才能进行点赞操作
-				 if(!store.hasLogin) {
+				//判断用户是否登录，登录才能进行点赞操作
+				if(!store.hasLogin) {
 					 uni.showModal({
 					 	title:"登录才能进行点赞哦，是否进行登录？",
 						success: (res) => {

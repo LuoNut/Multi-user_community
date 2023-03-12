@@ -82,7 +82,6 @@ export function giveAvatar(item) {
 
 //点赞操作数据库的方法
 export async function likeFun(artId) {
-	console.log("点赞操作数据库的方法");
 	//判断用户是否已经点过赞
 	let count = await db.collection("quanzi_like")
 		.where(`article_id=="${artId}" && user_id==$cloudEnv_uid`).count()
@@ -94,7 +93,6 @@ export async function likeFun(artId) {
 		db.collection('quanzi_like').add({
 			article_id: artId
 		}).then((res) => {
-			console.log(res);
 			utilsObj.operation('quanzi_article', 'like_count', artId, 1)
 		})
 	}

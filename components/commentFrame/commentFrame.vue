@@ -11,6 +11,8 @@
 	const utilsObj = uniCloud.importObject('utilsObj',{
 		customUI: true // 取消自动展示的交互提示界面
 	}) 
+	import {store} from "@/uni_modules/uni-id-pages/common/store.js"
+	import pageJson from '@/pages.json'
 	import {
 		getProvince
 	} from "@/utils/tools.js"
@@ -34,8 +36,23 @@
 			};
 		},
 		methods: {
+
 			//评论
 			async goComment() {
+				//判断是否登录
+				if(!store.hasLogin) {
+					 uni.showModal({
+					 	title:"登录才能进行评论哦，是否进行登录？",
+						success: (res) => {
+							if(res.confirm) {
+								uni.navigateTo({
+									url: '/' + pageJson.uniIdRouter.loginPage
+								})
+							}
+						}
+					 })
+					return 
+				}
 				if(!this.replyContent) {
 					uni.showToast({
 						title:"评论不能为空！",

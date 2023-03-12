@@ -135,7 +135,6 @@
 				 this.likeTime = time
 				 
 				//点赞操作数据库的方法
-				console.log("111");
 				likeFun(this.myItem._id)
 			},
 			//点击sheet的取消选项
