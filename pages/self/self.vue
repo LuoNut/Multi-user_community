@@ -21,7 +21,7 @@
 					</view>
 					<view class="text" v-else>
 						<view class="nickname">
-							点击登登
+							点击登录
 						</view>
 					</view>
 				</view>

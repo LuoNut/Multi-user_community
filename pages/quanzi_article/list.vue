@@ -45,15 +45,18 @@
       this.$refs.udb.loadMore()
     },
     methods: {
+		
+	  //点击我的长文列表文章跳转到相应文章
       handleItemClick(id) {
         uni.navigateTo({
           url: '/pages/detail/detail?id=' + id
         })
       },
+	  //点击加号图标跳转到新增文章页面
       fabClick() {
         // 打开新增页面
         uni.navigateTo({
-          url: './add',
+         url:"/pages/edit/edit",
           events: {
             // 监听新增数据成功后, 刷新当前页面数据
             refreshData: () => {
